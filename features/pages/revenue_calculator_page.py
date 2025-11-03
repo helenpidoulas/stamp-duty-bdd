@@ -9,50 +9,40 @@ class RevenueCalculatorPage:
         self.page = page
 
     # ---------- helpers ----------
-    def _dismiss_any_modals(self):
-        # Try the common modal close patterns used on this site (Bootstrap)
+    def _wait_overlays_clear(self, timeout: int = 5000):
+        """
+        Wait for Bootstrap modal/backdrop overlays to disappear.
+        If they linger, try ESC once and wait again briefly.
+        """
+        overlay = self.page.locator("div[role='dialog'].modal.show, .modal-backdrop.show")
         try:
-            # Close button inside modal
-            self.page.locator(
-                "div[role='dialog'].modal.show button:has-text('Close')"
-            ).click(timeout=1500)
+            expect(overlay).to_be_hidden(timeout=timeout)
         except Exception:
-            pass
-        try:
-            # Generic OK
-            self.page.locator(
-                "div[role='dialog'].modal.show button:has-text('OK')"
-            ).click(timeout=1500)
-        except Exception:
-            pass
-        try:
-            # '×' dismiss button
-            self.page.locator(
-                "div[role='dialog'].modal.show button.close, div[role='dialog'].modal.show .btn-close"
-            ).click(timeout=1500)
-        except Exception:
-            pass
-        # If a backdrop is still up, press Escape
-        try:
-            if self.page.locator(".modal-backdrop.show").is_visible(timeout=800):
+            try:
                 self.page.keyboard.press("Escape")
-        except Exception:
-            pass
+            except Exception:
+                pass
+            try:
+                expect(overlay).to_be_hidden(timeout=2000)
+            except Exception:
+                # If still visible, carry on; we'll use force clicks.
+                pass
 
     def _accept_cookies_if_present(self):
-        # Some NSW sites throw a cookie/consent banner
-        for selector in [
+        # Best-effort: cookie/consent banners vary; ignore failures.
+        for sel in (
             "button:has-text('Accept')",
             "button:has-text('I agree')",
             "button:has-text('Got it')",
         ):
             try:
-                self.page.locator(selector).click(timeout=800)
+                self.page.locator(sel).click(timeout=800)
             except Exception:
                 pass
 
     # ---------- page API ----------
     def assert_loaded(self):
+        # URL contains calculator path and page shows heading
         expect(self.page).to_have_url(re.compile(CALCULATOR_URL_SUBSTR))
         expect(
             self.page.get_by_role(
@@ -62,35 +52,31 @@ class RevenueCalculatorPage:
         ).to_be_visible()
 
     def select_passenger_yes(self):
-        # Clear any overlays before interacting
+        # Clear any overlays/cookie banners then click the label (robust against re-renders)
         self._accept_cookies_if_present()
-        self._dismiss_any_modals()
+        self._wait_overlays_clear()
 
-        # Prefer clicking the LABEL that targets the radio. This triggers change handlers cleanly.
         label = self.page.locator("label[for='passenger_Y']")
-        input_radio = self.page.locator("input#passenger_Y")
+        radio = self.page.locator("#passenger_Y")
 
-        # Scroll into view then click label; force if an overlay tries to intercept.
         try:
             label.scroll_into_view_if_needed(timeout=2000)
         except Exception:
             pass
 
-        # Sometimes a modal pops up immediately after clicking. Click label with force to bypass transient overlay.
+        # Use force in case a transient backdrop is intercepting
         label.click(timeout=5000, force=True)
 
-        # If the page does a tiny refresh/re-render, wait for stability and ensure checked.
+        # After click, the page sometimes re-renders: wait until checked, retry once if needed
         try:
-            expect(input_radio).to_be_checked(timeout=3000)
+            expect(radio).to_be_checked(timeout=3000)
         except Exception:
-            # If not checked yet, try one more time after clearing modals again.
-            self._dismiss_any_modals()
+            self._wait_overlays_clear(timeout=2000)
             label.click(timeout=3000, force=True)
-            expect(input_radio).to_be_checked(timeout=3000)
+            expect(radio).to_be_checked(timeout=3000)
 
     def enter_amount(self, amount: int):
-        # The field is labelled 'Purchase price or value (whole dollars):'
-        # Use label first; if the DOM changes, fall back to id/name heuristics.
+        # Prefer the labelled field; fall back to common id/name
         try:
             self.page.get_by_label(
                 re.compile(r"Purchase\s+price\s+or\s+value", re.I)
@@ -99,47 +85,39 @@ class RevenueCalculatorPage:
         except Exception:
             pass
 
-        for sel in [
-            "input#amount",
-            "input[name='amount']",
-            "input[type='text']",
-            "input[type='number']",
-        ]:
+        for sel in ("input#amount", "input[name='amount']", "input[type='number']", "input[type='text']"):
             try:
                 self.page.locator(sel).fill(str(amount), timeout=2500)
                 return
             except Exception:
                 continue
+
         raise AssertionError("Could not locate the amount input to enter value.")
 
     def click_calculate_and_capture_popup(self):
-        # The site shows a JS alert() OR a Bootstrap modal; handle both.
-        # First try the alert() path:
+        # The site may use alert() OR a Bootstrap modal; handle both.
+        # First try alert():
         try:
             with self.page.expect_dialog() as dlg:
-                self.page.get_by_role(
-                    "button", name=re.compile(r"^\s*Calculate\s*$", re.I)
-                ).click()
+                self.page.get_by_role("button", name=re.compile(r"^\s*Calculate\s*$", re.I)).click()
             dialog = dlg.value
             text = dialog.message
             dialog.accept()
             return text
         except Exception:
-            # If no alert, try modal content
-            self.page.get_by_role(
-                "button", name=re.compile(r"^\s*Calculate\s*$", re.I)
-            ).click()
-            # Wait for modal to appear
+            # Fallback to modal result
+            self.page.get_by_role("button", name=re.compile(r"^\s*Calculate\s*$", re.I)).click()
             modal = self.page.locator("div[role='dialog'].modal.show")
             expect(modal).to_be_visible(timeout=4000)
             text = modal.inner_text(timeout=2000)
-            # Close modal (OK/Close)
-            for btn in ["OK", "Close"]:
+            # Try to close modal gracefully
+            for btn in ("OK", "Close"):
                 try:
                     modal.get_by_role("button", name=re.compile(btn, re.I)).click(timeout=1500)
                     break
                 except Exception:
                     pass
+            self._wait_overlays_clear(timeout=2000)
             return text
 
     @staticmethod
@@ -147,16 +125,17 @@ class RevenueCalculatorPage:
         # From Service NSW:
         # $3 per $100 up to $44,999; for passenger vehicles >= 45,000:
         # $1,350 + $5 per $100 for the amount over $45,000 (exemptions excluded).
+        import math as _math
         if not passenger:
-            units = math.ceil(amount / 100.0)
+            units = _math.ceil(amount / 100.0)
             return units * 3
         if amount < 45000:
-            units = math.ceil(amount / 100.0)
+            units = _math.ceil(amount / 100.0)
             return units * 3
         over = amount - 45000
-        units_over = math.ceil(over / 100.0)
+        units_over = _math.ceil(over / 100.0)
         return 1350 + units_over * 5
 
     @staticmethod
     def normalize_money_text(s: str) -> str:
-        return re.sub(r"[^0-9]", "", s or "")  # strip non-digits for comparison
+        return re.sub(r"[^0-9]", "", s or "")
