@@ -25,14 +25,39 @@ pip install -r requirements.txt
 # 3) Install Playwright browsers
 python -m playwright install --with-deps
 
-# 4) Run in headless mode (default)
+# 4a) Run in headless mode (default)
 behave
 
-# or run headed for the live demo
+# 4b) or run headed for the live demo
 HEADED=1 behave
+
+# 5) optional - test a different vehicle amount
+AMOUNT=62000 HEADED=1 behave
+
 ```
 
 ## Notes
+- If this fails on step 1, it means Service NSW changed the UI (again).
+- That's why the fallback code exists; it will then auto-navigate directly to the Revenue NSW calculator.
+- That’s intentional test hardening.
+
+```bash
+
+Run HEADED=1 behave now.
+
+```
+
+## What you should physically see in the live demo
+The browser will:
+- open “Check motor vehicle stamp duty” on Service NSW
+- click Check online
+- land on the Revenue NSW calculator
+- pick Yes
+- enter amount
+- click Calculate
+- popup appears — code reads the popup + asserts the duty value
+
+Why use this approach:
 - The script is resilient: if the **Check online** button is not present on Service NSW (due to CMS changes),
   it falls back to clicking **Motor vehicle duty – Revenue NSW** and then **Motor vehicle duty calculator**.
 - Expected duty is computed from the published formula and matched in the popup text.
