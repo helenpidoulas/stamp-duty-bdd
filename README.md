@@ -1,20 +1,9 @@
-## GUI Automation Demonstration – Task 2 
-Note: Non-Revenue Automation Framework must be used. 
-
-Selecting an automation tool of your choice (BDD integration preferred) perform a live demo of a working automation of the following target Application: 
-- Check motor vehicle stamp duty at Service NSW: https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty 
-- Click the Check Online Button and assert that this subsequent page appears 
-- Enter Yes, enter a vehicle amount and click the calculate button 
-- Assert the contents of the popup window 
-
-
-
 # GUI Automation Demo – Service NSW Motor Vehicle Stamp Duty (BDD + Playwright)
 
 This demo uses **Python Playwright** with **Behave (BDD)** — 100% open‑source (non‑revenue) tools.
 
 ## What it automates
-1. Opens the Service NSW **Check motor vehicle stamp duty** page and clicks **Check online**.  
+1. Opens the Service NSW **Check motor vehicle stamp duty** page (https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty) and clicks **Check online**.  
 2. Asserts the **Revenue NSW Motor vehicle registration duty calculator** page is shown.  
 3. Selects **Yes** (passenger vehicle), enters an amount, clicks **Calculate**.  
 4. Captures the **popup/alert** text and asserts it contains the expected duty amount.
