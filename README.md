@@ -39,23 +39,16 @@ AMOUNT=62000 HEADED=1 behave
 ## Notes
 - If this fails on step 1, it means Service NSW changed the UI (again).
 - That's why the fallback code exists; it will then auto-navigate directly to the Revenue NSW calculator.
-- That’s intentional test hardening.
-
-```bash
-
-# Run the following command in terminal
-HEADED=1 behave
-
-```
-
-##Note:
+- That's intentional test hardening.
 - Behave does not treat features/steps/ as a proper package unless you force it to.
 - The fix is simple; create two empty files:
 features/__init__.py
 features/pages/__init__.py
 
+
 ```bash
-# Re-run the following command in terminal
+
+# Run the following command in terminal
 HEADED=1 behave
 
 ```
@@ -76,3 +69,9 @@ Why use this approach:
   it falls back to clicking **Motor vehicle duty – Revenue NSW** and then **Motor vehicle duty calculator**.
 - Expected duty is computed from the published formula and matched in the popup text.
 - Default amount is **50000**; override with `AMOUNT=62000 behave`.
+
+## Current status (90% done) - 3 November 2025
+- Screen recording of tests being executed:
+https://github.com/user-attachments/assets/a21713df-67b5-43ed-affa-d8d3090472fc
+- Tests are failing after the user selects "Yes" and enters the values in the modal. See below items which I am working on
+<img width="1465" height="874" alt="Screenshot 2025-11-03 at 4 23 09 PM" src="https://github.com/user-attachments/assets/d67175f6-6c35-4c02-b931-ea2ac05f7884" />
