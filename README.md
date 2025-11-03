@@ -68,7 +68,7 @@ Why use this approach:
 - The script is resilient: if the **Check online** button is not present on Service NSW (due to CMS changes),
   it falls back to clicking **Motor vehicle duty – Revenue NSW** and then **Motor vehicle duty calculator**.
 - Expected duty is computed from the published formula and matched in the popup text.
-- Default amount is **50000**; override with `AMOUNT=62000 behave`.
+- Default amount is `50000`; override with `AMOUNT=62000 behave`.
 
 ## Current status (90% done) - 3 November 2025
 - Screen recording of tests being executed:
