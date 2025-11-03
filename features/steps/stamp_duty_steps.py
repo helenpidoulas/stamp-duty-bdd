@@ -3,8 +3,16 @@ import re
 from behave import given, when, then
 from playwright.sync_api import sync_playwright, Browser, Page, expect
 
-from .pages.service_nsw_page import ServiceNSWPage
-from .pages.revenue_calculator_page import RevenueCalculatorPage
+from features.pages.service_nsw_page import ServiceNSWPage
+from features.pages.revenue_calculator_page import RevenueCalculatorPage
+
+# Adjust sys.path to ensure imports work when run via behave
+# This allows running `behave` from the project root      
+import sys, pathlib
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 
 AMOUNT = int(os.environ.get("AMOUNT", "50000"))
 HEADED = os.environ.get("HEADED", "0") in ("1", "true", "True", "yes", "YES")

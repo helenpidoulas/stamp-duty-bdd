@@ -43,9 +43,22 @@ AMOUNT=62000 HEADED=1 behave
 
 ```bash
 
-Run HEADED=1 behave now.
+# Run the following command in terminal
+HEADED=1 behave
 
 ```
+
+##Note:
+- Behave does not treat features/steps/ as a proper package unless you force it to.
+- The fix is simple; create two empty files:
+features/__init__.py
+features/pages/__init__.py
+
+# Re-run the following command in terminal
+HEADED=1 behave
+
+```
+
 
 ## What you should physically see in the live demo
 The browser will:
