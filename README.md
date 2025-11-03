@@ -97,9 +97,11 @@ features/pages/__init__.py
 - Popup / modal appears -> code reads it and asserts the duty value
 
 ## Evidence / Status
-- GUI screen recording
-- API screen recording
-- **Current:** GUI and API paths are integrated in one suite with @gui / @api tags.
+- GUI screen recording: https://github.com/user-attachments/assets/8fab3b41-a161-4962-aea9-8352f3ddc21c
+- API screen recording: https://github.com/user-attachments/assets/74971f06-a6dc-4913-bc87-4a2c30370d1a
+ 
+## Current: 
+- GUI and API paths are integrated in one suite with @gui / @api tags.
 - If a GUI step fails after selecting **Yes**, it's typically due to transient overlays; the page object includes logic to dismiss backdrops / modals and re-assert 
 
 
