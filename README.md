@@ -1,77 +1,110 @@
-# GUI Automation Demo – Service NSW Motor Vehicle Stamp Duty (BDD + Playwright)
+# GUI Automation Demo – Service NSW Motor Vehicle Stamp Duty GUI & OpenLibrary API - Behave BDD
 
-This demo uses **Python Playwright** with **Behave (BDD)** — 100% open‑source (non‑revenue) tools.
+Open-source stack:
+- Behave (BDD)
+- Playwright (GUI only)
+- Requests (API)
+- Pytest (reporting compatibility)
 
 ## What it automates
-1. Opens the Service NSW **Check motor vehicle stamp duty** page (https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty) and clicks **Check online**.  
+
+# GUI - Service NSW Motor Vehicle Stamp Duty
+1. Opens the Service NSW **Check motor vehicle stamp duty** page
+https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty and clicks **Check online**.  
 2. Asserts the **Revenue NSW Motor vehicle registration duty calculator** page is shown.  
 3. Selects **Yes** (passenger vehicle), enters an amount, clicks **Calculate**.  
-4. Captures the **popup/alert** text and asserts it contains the expected duty amount.
+4. Captures the **popup / alert / modal** text and asserts it contains the expected duty amount.
 
-## Explanation of packages used and why:
-- **Behave:** this is the business language layer (BDD) framework; this is the given / when / then layer, and maps human-readable steps to Python step definitions.
-- **Playwright:** this is the browser automation engine or GUI driver, for Chrome/ Firefix / WebKit driver + API. It replaces Selenium in modern stacks and is what physically clicks the "Check Online" button, enters the value, waits for the popup and captures the dialog.
-- **Pytest:** this is the underlying test runner and reporting foundation; Behave doesn't need pytest, but most teams include pytest because CI/CD reporting, fixtures, parallelisation are more mature in pytest. Its good for future integration and reporting. 
+# API - OpenLibrary Author
+1. Calls https://openlibrary.org/authors/OL1A.json
+2. Asserts **personal_name == "Sachi Rautroy"**
+3. Asserts **alternate_names** contain **Yugashrashta Sachi Routray** (handles U+202F narrow no-break spaces)
+
+## Explanation of packages used and why
+- **Behave:** BDD layer (given / when / then) layer that maps human-readable steps to Python step definitions.
+- **Playwright:** this is the modern browser automation engine or GUI driver, for Chrome/ Firefix / WebKit driver. It replaces Selenium in modern stacks. Playwright is used for the GUI demo to click, enter values and read popups.
+- **Requests:** Lightweight HTTP client used for the API demo.
+- **Pytest:** Not strictly required by Behave, but kept for better CI/CD reporting and future parallelisation / fixtures are more mature in pytest. Its good for future integration and reporting. 
 
 ## Quick start
+
 ```bash
-# 1) Create & activate a virtual env (macOS/Linux)
+
+# Create & activate a virtual env (macOS/Linux)
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 2) Install deps
+# Install deps
 pip install -r requirements.txt
 
-# 3) Install Playwright browsers
+```
+
+## Run GUI demo (Service NSW)
+
+```bash
+
+# Install Playwright browsers (GUI only)
 python -m playwright install --with-deps
 
-# 4a) Run in headless mode (default)
+# Run GUI scenarios (headed for the GUI live demo)
+HEADED=1 behave --tags=@gui
+
+# Optional - test a different vehicle amount
+AMOUNT=62000 HEADED=1 behave --tags=@gui
+
+```
+
+## Run API demo (OpenLibrary)
+
+```bash
+
+# Run for the API only
+behave --tags=@api
+
+```
+
+## Run everything
+
+```bash
+
+# Everything
+
 behave
-
-# 4b) or run headed for the live demo
-HEADED=1 behave
-
-# 5) optional - test a different vehicle amount
-AMOUNT=62000 HEADED=1 behave
 
 ```
 
 ## Notes
-- If this fails on step 1, it means Service NSW changed the UI (again).
-- That's why the fallback code exists; it will then auto-navigate directly to the Revenue NSW calculator.
-- That's intentional test hardening.
-- Behave does not treat features/steps/ as a proper package unless you force it to.
-- The fix is simple; create two empty files:
+
+- If this fails on step 1, it means Service NSW changed the UI
+- The GUI test is **hardened**: if the Service NSW page layout changes, it can fall back to direct navigation within the Revenue NSW before asserting.
+- Duty is computed from the published forumula and compared against the popup / modal text (formatting-tolerant)
+- Default amount is **50000**; override with **AMOUNT=62000**
+- **Tags & hooks**: features/environment.py boots Playwright **only** for scenarios tagged **@gui**. API scenarios run with no browser. 
+- Behave stops iomports: if Python treats **features/** as non-package in your setup, ensure these files exist (should be already present in this repo):
 features/__init__.py
 features/pages/__init__.py
 
 
-```bash
 
-# Run the following command in terminal
-HEADED=1 behave
+## What you should physically see in the GUI live demo
 
-```
+- Opens **Check motor vehicle stamp duty** on Service NSW
+- Clicks on **Check online**
+- Lands on the **Revenue NSW calculator**
+- Picks **Yes**
+- Enter amount
+- Clicks **Calculate**
+- Popup / modal appears -> code reads it and asserts the duty value
+
+## Evidence / Status
+- GUI screen recording
+- API screen recording
+- **Current:** GUI and API paths are integrated in one suite with @gui / @api tags.
+- If a GUI step fails after selecting **Yes**, it's typically due to transient overlays; the page object includes logic to dismiss backdrops / modals and re-assert 
 
 
-## What you should physically see in the live demo
-The browser will:
-- open “Check motor vehicle stamp duty” on Service NSW
-- click Check online
-- land on the Revenue NSW calculator
-- pick Yes
-- enter amount
-- click Calculate
-- popup appears — code reads the popup + asserts the duty value
-
-Why use this approach:
+## Why use this approach:
 - The script is resilient: if the **Check online** button is not present on Service NSW (due to CMS changes),
   it falls back to clicking **Motor vehicle duty – Revenue NSW** and then **Motor vehicle duty calculator**.
 - Expected duty is computed from the published formula and matched in the popup text.
 - Default amount is `50000`; override with `AMOUNT=62000 behave`.
-
-## Current status (90% done) - 3 November 2025
-- Screen recording of tests being executed:
-https://github.com/user-attachments/assets/a21713df-67b5-43ed-affa-d8d3090472fc
-- Tests are failing after the user selects "Yes" and enters the values in the modal. See below items which I am working on
-<img width="1465" height="874" alt="Screenshot 2025-11-03 at 4 23 09 PM" src="https://github.com/user-attachments/assets/d67175f6-6c35-4c02-b931-ea2ac05f7884" />
