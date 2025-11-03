@@ -54,6 +54,7 @@ HEADED=1 behave
 features/__init__.py
 features/pages/__init__.py
 
+```bash
 # Re-run the following command in terminal
 HEADED=1 behave
 
