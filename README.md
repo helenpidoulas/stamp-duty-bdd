@@ -1,3 +1,14 @@
+## GUI Automation Demonstration – Task 2 
+Note: Non-Revenue Automation Framework must be used. 
+
+Selecting an automation tool of your choice (BDD integration preferred) perform a live demo of a working automation of the following target Application: 
+- Check motor vehicle stamp duty at Service NSW: https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty 
+- Click the Check Online Button and assert that this subsequent page appears 
+- Enter Yes, enter a vehicle amount and click the calculate button 
+- Assert the contents of the popup window 
+
+
+
 # GUI Automation Demo – Service NSW Motor Vehicle Stamp Duty (BDD + Playwright)
 
 This demo uses **Python Playwright** with **Behave (BDD)** — 100% open‑source (non‑revenue) tools.
@@ -37,12 +48,3 @@ HEADED=1 behave
   it falls back to clicking **Motor vehicle duty – Revenue NSW** and then **Motor vehicle duty calculator**.
 - Expected duty is computed from the published formula and matched in the popup text.
 - Default amount is **50000**; override with `AMOUNT=62000 behave`.
-
-## GUI Automation Demonstration – Task 2 
-Note: Non-Revenue Automation Framework must be used. 
-
-Selecting an automation tool of your choice (BDD integration preferred) perform a live demo of a working automation of the following target Application: 
-- Check motor vehicle stamp duty | Service NSW: https://www.service.nsw.gov.au/transaction/check-motor-vehicle-stamp-duty 
-- Click the Check Online Button and assert that this subsequent page appears 
-- Enter Yes, enter a vehicle amount and click the calculate button 
-- Assert the contents of the popup window 
