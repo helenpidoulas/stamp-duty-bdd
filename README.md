@@ -68,8 +68,11 @@ behave --tags=@api
 ```bash
 
 # Everything
-
+# Headless
 behave
+
+#Headed
+HEADED=1 behave
 
 ```
 
