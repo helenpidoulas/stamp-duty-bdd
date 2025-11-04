@@ -47,7 +47,7 @@ def step_click_calc(context):
     # calculation / popup handled in the next step
     pass
 
-
+# I should add more comments to my code
 @then("a popup should appear with the correct duty")
 def step_assert_popup(context):
     amount = getattr(context, "AMOUNT", AMOUNT)
