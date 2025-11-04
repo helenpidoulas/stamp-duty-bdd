@@ -1,0 +1,97 @@
+name: BDD GUI & API
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      amount:
+        description: "Vehicle amount for GUI test"
+        required: false
+        default: "50000"
+
+jobs:
+  api:
+    name: API (@api) – OpenLibrary
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Behave (@api) with JUnit output
+        run: |
+          mkdir -p reports/junit
+          behave --tags=@api --junit --junit-directory reports/junit
+
+      - name: Upload JUnit (API)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-api
+          path: reports/junit
+
+      - name: Upload API artifacts (raw/slim JSON + note)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-artifacts
+          path: artifacts/api
+          if-no-files-found: ignore
+
+  gui:
+    name: GUI (@gui) – Service NSW
+    runs-on: ubuntu-latest
+    env:
+      HEADED: "0"   # headless in CI
+      AMOUNT: ${{ inputs.amount || '50000' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps
+
+      - name: Run Behave (@gui) headless under Xvfb, with JUnit output
+        run: |
+          mkdir -p reports/junit
+          xvfb-run -a behave --tags=@gui --junit --junit-directory reports/junit
+
+      - name: Upload JUnit (GUI)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-gui
+          path: reports/junit
+
+      - name: Upload GUI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: artifacts/screenshots
+          if-no-files-found: ignore
