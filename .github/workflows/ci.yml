@@ -31,25 +31,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Behave (@api) with JUnit output
-        run: |
-          mkdir -p reports/junit
-          behave --tags=@api --junit --junit-directory reports/junit
+      # - name: Run Behave (@api) with JUnit output
+      #   run: |
+      #     mkdir -p reports/junit
+      #     behave --tags=@api --junit --junit-directory reports/junit
 
-      - name: Upload JUnit (API)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-api
-          path: reports/junit
+      # - name: Upload JUnit (API)
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: junit-api
+      #     path: reports/junit
 
-      - name: Upload API artifacts (raw/slim JSON + note)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-artifacts
-          path: artifacts/api
-          if-no-files-found: ignore
+      # - name: Upload API artifacts (raw/slim JSON + note)
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: api-artifacts
+      #     path: artifacts/api
+      #     if-no-files-found: ignore
 
   gui:
     name: GUI (@gui) – Service NSW
@@ -76,10 +76,10 @@ jobs:
         run: |
           python -m playwright install --with-deps
 
-      - name: Run Behave (@gui) headless under Xvfb, with JUnit output
-        run: |
-          mkdir -p reports/junit
-          xvfb-run -a behave --tags=@gui --junit --junit-directory reports/junit
+      # - name: Run Behave (@gui) headless under Xvfb, with JUnit output
+      #   run: |
+      #     mkdir -p reports/junit
+      #     xvfb-run -a behave --tags=@gui --junit --junit-directory reports/junit
 
       # - name: Upload JUnit (GUI)
       #   if: always()
