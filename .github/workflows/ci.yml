@@ -81,17 +81,17 @@ jobs:
           mkdir -p reports/junit
           xvfb-run -a behave --tags=@gui --junit --junit-directory reports/junit
 
-      - name: Upload JUnit (GUI)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-gui
-          path: reports/junit
+      # - name: Upload JUnit (GUI)
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: junit-gui
+      #     path: reports/junit
 
-      - name: Upload GUI screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots
-          path: artifacts/screenshots
-          if-no-files-found: ignore
+      # - name: Upload GUI screenshots
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: screenshots
+      #     path: artifacts/screenshots
+      #     if-no-files-found: ignore
