@@ -70,7 +70,7 @@ AMOUNT=62000 HEADED=1 behave --tags=@gui
 behave --tags=@api
 ```
 
-## Run entire quite
+## Run entire suite
 
 ```bash
 # headless
